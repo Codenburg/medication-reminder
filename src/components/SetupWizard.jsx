@@ -9,6 +9,7 @@ const SetupWizard = ({ onComplete }) => {
   });
   const [customTime, setCustomTime] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [pillsError, setPillsError] = useState('');
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,9 +18,12 @@ const SetupWizard = ({ onComplete }) => {
       [name]: name === 'totalPills' ? parseInt(value) || 0 : value
     }));
     
-    // Clear validation error when user starts typing
+    // Clear validation errors when user starts typing
     if (name === 'name' && validationError) {
       setValidationError('');
+    }
+    if (name === 'totalPills' && pillsError) {
+      setPillsError('');
     }
   };
 
@@ -53,8 +57,8 @@ const SetupWizard = ({ onComplete }) => {
               onChange={handleChange}
               placeholder="Ej: Paracetamol, Metformina, etc."
               className={`w-full px-4 py-3 border ${
-                validationError ? 'border-pink-500' : 'border-gray-300'
-              } rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent`}
+                validationError ? 'border-pink-500' : 'border-gray-300 hover:border-pink-300 focus:border-pink-300'
+              } rounded-lg focus:ring-2 focus:ring-pink-500 focus:outline-none transition-colors duration-200`}
               required
             />
             {validationError && (
@@ -76,8 +80,14 @@ const SetupWizard = ({ onComplete }) => {
               value={treatmentData.totalPills}
               onChange={handleChange}
               min="1"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border ${
+                pillsError ? 'border-pink-500' : 'border-gray-300 hover:border-pink-300'
+              } rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-300 focus:outline-none transition-colors duration-200`}
+              required
             />
+            {pillsError && (
+              <p className="text-pink-600 text-sm mt-1">{pillsError}</p>
+            )}
           </div>
         );
       
@@ -108,7 +118,8 @@ const SetupWizard = ({ onComplete }) => {
                 type="time"
                 value={customTime}
                 onChange={(e) => setCustomTime(e.target.value)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="flex-1 px-4 py-3 border border-gray-300 hover:border-pink-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-300 focus:outline-none transition-colors duration-200"
+                required
               />
               <button 
                 onClick={() => {
@@ -202,9 +213,17 @@ const SetupWizard = ({ onComplete }) => {
           
           <button
             onClick={() => {
-              if (step === 1 && treatmentData.name.trim() === '') {
-                setValidationError('Por favor ingresa el nombre de tu medicación');
-                return;
+              if (step === 1) {
+                if (treatmentData.name.trim() === '') {
+                  setValidationError('Por favor ingresa el nombre de tu medicación');
+                  return;
+                }
+              }
+              if (step === 2) {
+                if (isNaN(treatmentData.totalPills) || treatmentData.totalPills < 1) {
+                  setPillsError(treatmentData.totalPills === 0 ? 'No puede ser 0' : 'La cantidad debe ser mayor a 0');
+                  return;
+                }
               }
               
               if (step < 4) {
@@ -213,7 +232,7 @@ const SetupWizard = ({ onComplete }) => {
                 onComplete(treatmentData);
               }
             }}
-            disabled={step === 1 && treatmentData.name.trim() === ''}
+            disabled={step === 1 && treatmentData.name.trim() === '' || step === 2 && (treatmentData.totalPills <= 0 || isNaN(treatmentData.totalPills))}
             className={`px-4 py-2 bg-pink-500 text-white rounded-lg transition-colors duration-200 ${
               step === 1 && treatmentData.name.trim() === '' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-pink-600'
             }`}
