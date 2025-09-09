@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-pink-50 to-purple-50 min-h-screen;
+  }
+}
+
+@layer components {
+  .pill-slot {
+    @apply w-8 h-12 rounded-full border-2 transition-all duration-300 ease-in-out;
+  }
+  
+  .pill-slot.empty {
+    @apply border-gray-200 bg-gray-50;
+  }
+  
+  .pill-slot.full {
+    @apply border-primary-400 bg-primary-500 shadow-md;
+  }
+  
+  .pill-slot.taken {
+    @apply border-green-400 bg-green-500 shadow-md opacity-60;
+  }
+  
+  .notification-permission-btn {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+}
